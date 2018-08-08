@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #container {
+            width: 100%;
+            height: 100vh;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #canvas {
+            width: 80%;
+            background-color: #fff;
+        }
+
+        /*body{*/
+        /*transform: rotate(-90deg);*/
+        /*}*/
+    </style>
+</head>
+<body>
+<div id="container">
+    <canvas id="canvas" width="450" height="800"></canvas>
+</div>
+</body>
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const [BASELINE, RECTW, RECTH, DRAGONW, DRAGONH] = [80, 50, 100, 50, 50];
+    let speed = 5;
+
+    class Rect {
+        constructor() {
+            this.x = BASELINE;
+            this.y = 1200;
+            this.w = RECTW;
+            this.h = RECTH;
+            this.drawRect(this.y)
+        }
+        init(){
+            this.y = 1200;
+            this.drawRect(this.y);
+        }
+        drawRect() {
+            this.y=this.y-speed;
+            ctx.fillRect(this.x, this.y, this.h, this.w);
+            if (this.y < -100) {
+                this.y=Math.floor(1200 * (1.1 + Math.random() * Math.random()));
+                ctx.fillRect(this.x, this.y, this.h, this.w);
+            }
+        }
+
+    }
+
+    class Dragon {
+        constructor() {
+            this.x = BASELINE;
+            this.y = 100;
+            this.w = DRAGONW;
+            this.h = DRAGONH;
+            this.isTop = false;
+            this.jumping = false;
+            this.drawDragon()
+        }
+        init(){
+            this.x = BASELINE;
+            this.y = 100;
+            this.isTop = false;
+            this.jumping = false;
+            this.drawDragon();
+        }
+        clearRect() {
+            ctx.clearRect(BASELINE, 0, 450 - BASELINE, 800);
+            if (this.x === BASELINE) {
+                ctx.strokeRect(BASELINE, 100, DRAGONW, DRAGONH);
+            }
+        };
+
+        jump() {
+            this.jumping = true;
+        }
+
+        drawDragon() {
+            if (this.jumping) {
+                if (!this.isTop) {
+                    if (this.x < RECTH + DRAGONH + 80) {
+                        if (this.x > 225) {
+                            ctx.strokeRect(this.x = this.x + 1, 100, DRAGONW, DRAGONH);
+                        } else if (this.x > 215) {
+                            ctx.strokeRect(this.x = this.x + 2, 100, DRAGONW, DRAGONH);
+                        } else if (this.x > 190) {
+                            ctx.strokeRect(this.x = this.x + 3, 100, DRAGONW, DRAGONH);
+                        } else {
+                            ctx.strokeRect(this.x = this.x + 6, 100, DRAGONW, DRAGONH);
+                        }
+                    } else {
+                        ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
+                        this.isTop = true;
+                    }
+                } else {
+                    if (this.x > BASELINE) {
+                        if (this.x > 225) {
+                            ctx.strokeRect(this.x = this.x - 1, 100, DRAGONW, DRAGONH);
+                        } else if (this.x > 215) {
+                            ctx.strokeRect(this.x = this.x - 2, 100, DRAGONW, DRAGONH);
+                        } else if (this.x > 190) {
+                            ctx.strokeRect(this.x = this.x - 3, 100, DRAGONW, DRAGONH);
+                        } else {
+                            ctx.strokeRect(this.x = this.x - 6, 100, DRAGONW, DRAGONH);
+                        }
+                    } else {
+                        ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
+                        this.isTop = false;
+                        this.jumping = false;
+                    }
+                }
+            } else {
+                ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
+            }
+        }
+    }
+
+    class Game {
+        constructor() {
+            this.status="pause";
+            this.lose=false;
+            this.score=0;
+            this.drawLine();
+            this.dragon = new Dragon();
+            this.rect = new Rect();
+            canvas.onclick = function () {
+                if(this.status==="pause"){
+                    this.status="playing";
+                    this.animationFrame();
+                }else{
+                    this.dragon.jump();
+                }
+                if(this.lose){
+                    this.init();
+                }
+            }.bind(this);
+        }
+        setScore(){
+            this.score+=1;
+            if(this.score%1000===0){
+                speed+=1;
+            }
+            console.log(speed);
+            let showScore=Math.ceil(this.score/10);
+            if(showScore<10000){
+                if(showScore>=1000){
+                    showScore="0"+showScore;
+                }else if(showScore>=100){
+                    showScore="00"+showScore;
+                }else if(showScore>=10){
+                    showScore="000"+showScore;
+                }else{
+                    showScore="0000"+showScore;
+                }
+            }
+            if(Math.ceil(this.score/10)%100===0){
+                ctx.save();
+                ctx.font="30px Arial";
+                ctx.fillStyle = "red";
+                ctx.translate(380,680);
+                ctx.rotate(90*Math.PI/180);
+                ctx.fillText(showScore,0,0);
+                ctx.restore();
+            }else{
+                ctx.save();
+                ctx.font="30px Arial";
+                ctx.translate(380,680);
+                ctx.rotate(90*Math.PI/180);
+                ctx.fillText(showScore,0,0);
+                ctx.restore();
+            }
+
+        }
+        init(){
+            this.status="pause";
+            this.lose=false;
+            this.score=0;
+            speed=5;
+            ctx.clearRect(0, 0, 450, 800);
+            this.drawLine();
+            this.rect.init();
+            this.dragon.init();
+        }
+        drawLine() {
+            ctx.moveTo(BASELINE, 0);
+            ctx.lineTo(BASELINE, 800);
+            ctx.stroke();
+        };
+
+        clearRect() {
+            ctx.clearRect(BASELINE, 0, 450 - BASELINE, 800);
+        };
+        check(){
+            let yDisB=this.rect.y-this.dragon.y-this.dragon.w;
+            let xDisB=this.dragon.x-this.rect.h-this.rect.x;
+            let yDisA=this.dragon.y-this.rect.y-this.rect.w;
+            if(!(yDisB>=0||xDisB>=0||yDisA>=0)){
+                this.status="pause";
+                this.lose=true;
+            }
+        }
+        animationFrame() {
+            this.clearRect();
+            this.rect.drawRect();
+            this.dragon.drawDragon();
+            this.check();
+            this.setScore();
+            console.log(Math.ceil(this.score/10));
+            if(this.status==="pause"){
+                return;
+            }
+            requestAnimationFrame(this.animationFrame.bind(this))
+
+        }
+    }
+    new Game();
+
+
+</script>
+</html>
