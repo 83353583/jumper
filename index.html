@@ -49,20 +49,23 @@
     class Rect {
         constructor() {
             this.x = BASELINE;
-            this.y = 1200;
+            this.y = 900;
             this.w = RECTW;
             this.h = RECTH;
             this.drawRect(this.y)
         }
-        init(){
-            this.y = 1200;
+
+        init() {
+            this.y = 900;
             this.drawRect(this.y);
         }
+
         drawRect() {
-            this.y=this.y-speed;
+            this.y = this.y - speed;
             ctx.fillRect(this.x, this.y, this.h, this.w);
             if (this.y < -100) {
-                this.y=Math.floor(1200 * (1.1 + Math.random() * Math.random()));
+                this.y = Math.floor(900 * (1 + Math.random() * Math.random()* Math.random()));
+                console.log(this.y);
                 ctx.fillRect(this.x, this.y, this.h, this.w);
             }
         }
@@ -79,13 +82,15 @@
             this.jumping = false;
             this.drawDragon()
         }
-        init(){
+
+        init() {
             this.x = BASELINE;
             this.y = 100;
             this.isTop = false;
             this.jumping = false;
             this.drawDragon();
         }
+
         clearRect() {
             ctx.clearRect(BASELINE, 0, 450 - BASELINE, 800);
             if (this.x === BASELINE) {
@@ -136,73 +141,108 @@
             }
         }
     }
+    class Cloud{
+        constructor(y) {
+            this.x = 300* (1 + Math.random() * Math.random()* Math.random());
+            this.y = y;
+            this.w = 100;
+            this.h = 20;
+            this.drawRect(this.y)
+        }
 
+        init() {
+            this.y = 900;
+            this.drawRect(this.y);
+        }
+
+        drawRect() {
+            this.y = this.y - 2;
+            ctx.save();
+            ctx.fillStyle="#cccccc";
+            ctx.fillRect(this.x, this.y, this.h, this.w);
+            ctx.restore();
+            if (this.y < -100) {
+                this.y = Math.floor(800 * (1 + Math.random() * Math.random()* Math.random()));
+                console.log(this.y);
+                ctx.fillRect(this.x, this.y, this.h, this.w);
+            }
+        }
+    }
     class Game {
         constructor() {
-            this.status="pause";
-            this.lose=false;
-            this.score=0;
+            this.status = "pause";
+            this.lose = false;
+            this.score = 0;
             this.drawLine();
+            this.drawText("点击屏幕开始游戏","center");
+            this.drawText("00000","RT");
             this.dragon = new Dragon();
             this.rect = new Rect();
             canvas.onclick = function () {
-                if(this.status==="pause"){
-                    this.status="playing";
+                if (this.status === "pause") {
+                    this.status = "playing";
                     this.animationFrame();
-                }else{
+                } else {
                     this.dragon.jump();
                 }
-                if(this.lose){
+                if (this.lose) {
                     this.init();
                 }
             }.bind(this);
         }
-        setScore(){
-            this.score+=1;
-            if(this.score%1000===0){
-                speed+=1;
+
+        setScore() {
+            this.score += 1;
+            if (this.score % 1000 === 0) {
+                speed += 1;
             }
-            console.log(speed);
-            let showScore=Math.ceil(this.score/10);
-            if(showScore<10000){
-                if(showScore>=1000){
-                    showScore="0"+showScore;
-                }else if(showScore>=100){
-                    showScore="00"+showScore;
-                }else if(showScore>=10){
-                    showScore="000"+showScore;
-                }else{
-                    showScore="0000"+showScore;
+            let showScore = Math.ceil(this.score / 10);
+            if (showScore < 10000) {
+                if (showScore >= 1000) {
+                    showScore = "0" + showScore;
+                } else if (showScore >= 100) {
+                    showScore = "00" + showScore;
+                } else if (showScore >= 10) {
+                    showScore = "000" + showScore;
+                } else {
+                    showScore = "0000" + showScore;
                 }
             }
-            if(Math.ceil(this.score/10)%100===0){
-                ctx.save();
-                ctx.font="30px Arial";
-                ctx.fillStyle = "red";
-                ctx.translate(380,680);
-                ctx.rotate(90*Math.PI/180);
-                ctx.fillText(showScore,0,0);
-                ctx.restore();
-            }else{
-                ctx.save();
-                ctx.font="30px Arial";
-                ctx.translate(380,680);
-                ctx.rotate(90*Math.PI/180);
-                ctx.fillText(showScore,0,0);
-                ctx.restore();
+            if (Math.ceil(this.score / 10) % 100 === 0) {
+                this.drawText(showScore, "RT", 30, "red")
+            } else {
+                this.drawText(showScore, "RT", 30)
             }
 
         }
-        init(){
-            this.status="pause";
-            this.lose=false;
-            this.score=0;
-            speed=5;
+
+        init() {
+            this.status = "pause";
+            this.lose = false;
+            this.score = 0;
+            speed = 5;
             ctx.clearRect(0, 0, 450, 800);
+            this.drawText("点击屏幕开始游戏","center");
+            this.drawText("00000","RT");
             this.drawLine();
             this.rect.init();
             this.dragon.init();
         }
+
+        drawText(text, pos, fntSize = 30, color = "#000") {
+            ctx.save();
+            ctx.fillStyle = color;
+            ctx.font = fntSize + "px Arial";
+            if (pos === "center") {
+                ctx.translate(225, 400-text.length*fntSize/2);
+            } else if (pos === "RT") {
+                ctx.translate(380, 680);
+            }
+            ctx.rotate(90 * Math.PI / 180);
+            ctx.fillText(text, 0, 0);
+            ctx.restore();
+        }
+
         drawLine() {
             ctx.moveTo(BASELINE, 0);
             ctx.lineTo(BASELINE, 800);
@@ -212,29 +252,32 @@
         clearRect() {
             ctx.clearRect(BASELINE, 0, 450 - BASELINE, 800);
         };
-        check(){
-            let yDisB=this.rect.y-this.dragon.y-this.dragon.w;
-            let xDisB=this.dragon.x-this.rect.h-this.rect.x;
-            let yDisA=this.dragon.y-this.rect.y-this.rect.w;
-            if(!(yDisB>=0||xDisB>=0||yDisA>=0)){
-                this.status="pause";
-                this.lose=true;
+
+        check() {
+            let yDisB = this.rect.y - this.dragon.y - this.dragon.w;
+            let xDisB = this.dragon.x - this.rect.h - this.rect.x;
+            let yDisA = this.dragon.y - this.rect.y - this.rect.w;
+            if (!(yDisB >= 0 || xDisB >= 0 || yDisA >= 0)) {
+                this.status = "pause";
+                this.lose = true;
+                this.drawText("游戏结束,点击屏幕重新开始","center");
             }
         }
+
         animationFrame() {
             this.clearRect();
             this.rect.drawRect();
             this.dragon.drawDragon();
             this.check();
             this.setScore();
-            console.log(Math.ceil(this.score/10));
-            if(this.status==="pause"){
+            if (this.status === "pause") {
                 return;
             }
             requestAnimationFrame(this.animationFrame.bind(this))
 
         }
     }
+
     new Game();
 
 
