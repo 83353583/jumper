@@ -64,7 +64,7 @@
             this.y = this.y - speed;
             ctx.fillRect(this.x, this.y, this.h, this.w);
             if (this.y < -100) {
-                this.y = Math.floor(900 * (1 + Math.random() * Math.random()* Math.random()));
+                this.y = Math.floor(900 * (1 + Math.random() * Math.random() * Math.random()));
                 console.log(this.y);
                 ctx.fillRect(this.x, this.y, this.h, this.w);
             }
@@ -136,59 +136,62 @@
                         this.jumping = false;
                     }
                 }
-                ctx.moveTo(BASELINE+15, 0);
-                ctx.lineTo(BASELINE+15, 800);
+                ctx.beginPath();
+                ctx.moveTo(BASELINE + 15, 100);
+                ctx.lineTo(BASELINE + 15, 150);
                 ctx.stroke();
             } else {
                 ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
             }
-            ctx.clearRect(this.x, 100, DRAGONW-1, DRAGONH-1);
+            ctx.clearRect(this.x, 100, DRAGONW - 1, DRAGONH - 1);
         }
     }
-    class Cloud{
+
+    class Cloud {
         constructor(y) {
-            this.x = 250* (1 + Math.random() * Math.random());
-            this.y = 800*Math.random();
+            this.x = 250 * (1 + Math.random() * Math.random());
+            this.y = 800 * Math.random();
             this.w = 100;
             this.h = 20;
-            this.speed=Math.floor(1+2*Math.random());
+            this.speed = Math.floor(1 + 2 * Math.random());
             this.drawCloud()
         }
 
         init() {
-            this.y = 800*Math.random();
+            this.y = 800 * Math.random();
             this.drawCloud();
         }
 
         drawCloud() {
             this.y = this.y - this.speed;
             ctx.save();
-            ctx.fillStyle="#cccccc";
+            ctx.fillStyle = "#cccccc";
             ctx.fillRect(this.x, this.y, this.h, this.w);
             if (this.y < -100) {
-                this.speed=Math.ceil(5*Math.random());
-                this.x = 250* (1 + Math.random() * Math.random());
-                this.y = Math.floor(800 * (1 + Math.random() * Math.random()* Math.random()));
+                this.speed = Math.ceil(5 * Math.random());
+                this.x = 250 * (1 + Math.random() * Math.random());
+                this.y = Math.floor(800 * (1 + Math.random() * Math.random() * Math.random()));
                 console.log(this.y);
                 ctx.fillRect(this.x, this.y, this.h, this.w);
             }
             ctx.restore();
         }
     }
+
     class Game {
         constructor() {
             this.status = "pause";
             this.lose = false;
             this.score = 0;
             this.drawLine();
-            this.drawText("点击屏幕开始游戏","center");
-            this.drawText("00000","RT");
+            this.drawText("点击屏幕开始游戏", "center");
+            this.drawText("00000", "RT");
             this.dragon = new Dragon();
             this.rect = new Rect();
-            this.cloud1=new Cloud();
-            this.cloud2=new Cloud();
-            this.cloud3=new Cloud();
-            this.cloud4=new Cloud();
+            this.cloud1 = new Cloud();
+            this.cloud2 = new Cloud();
+            this.cloud3 = new Cloud();
+            this.cloud4 = new Cloud();
             canvas.onclick = function () {
                 if (this.status === "pause") {
                     this.status = "playing";
@@ -233,8 +236,8 @@
             this.score = 0;
             speed = 5;
             ctx.clearRect(0, 0, 450, 800);
-            this.drawText("点击屏幕开始游戏","center");
-            this.drawText("00000","RT");
+            this.drawText("点击屏幕开始游戏", "center");
+            this.drawText("00000", "RT");
             this.drawLine();
             this.rect.init();
             this.dragon.init();
@@ -245,7 +248,7 @@
             ctx.fillStyle = color;
             ctx.font = fntSize + "px Arial";
             if (pos === "center") {
-                ctx.translate(225, 400-text.length*fntSize/2);
+                ctx.translate(225, 400 - text.length * fntSize / 2);
             } else if (pos === "RT") {
                 ctx.translate(380, 680);
             }
@@ -255,14 +258,15 @@
         }
 
         drawLine() {
-            ctx.moveTo(BASELINE+15, 0);
-            ctx.lineTo(BASELINE+15, 800);
+            ctx.beginPath();
+            ctx.moveTo(BASELINE + 15, 0);
+            ctx.lineTo(BASELINE + 15, 800);
             ctx.stroke();
         };
 
         clearRect() {
-            ctx.clearRect(BASELINE+15, 0, 450 - BASELINE, 800);
-            ctx.clearRect(0, 0, BASELINE+14, 800);
+            ctx.clearRect(BASELINE + 15, 0, 450 - BASELINE, 800);
+            ctx.clearRect(0, 0, BASELINE + 14, 800);
         };
 
         check() {
@@ -272,7 +276,7 @@
             if (!(yDisB >= 0 || xDisB >= 0 || yDisA >= 0)) {
                 this.status = "pause";
                 this.lose = true;
-                this.drawText("游戏结束,点击屏幕重新开始","center");
+                this.drawText("游戏结束,点击屏幕重新开始", "center");
             }
         }
 
@@ -293,6 +297,7 @@
 
         }
     }
+
     new Game();
 </script>
 </html>
