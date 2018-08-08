@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Jumper</title>
     <style>
         * {
             margin: 0;
@@ -57,7 +57,7 @@
 
         init() {
             this.y = 900;
-            this.drawRect(this.y);
+            this.drawRect();
         }
 
         drawRect() {
@@ -136,36 +136,43 @@
                         this.jumping = false;
                     }
                 }
+                ctx.moveTo(BASELINE+15, 0);
+                ctx.lineTo(BASELINE+15, 800);
+                ctx.stroke();
             } else {
                 ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
             }
+            ctx.clearRect(this.x, 100, DRAGONW-1, DRAGONH-1);
         }
     }
     class Cloud{
         constructor(y) {
-            this.x = 300* (1 + Math.random() * Math.random()* Math.random());
-            this.y = y;
+            this.x = 250* (1 + Math.random() * Math.random());
+            this.y = 800*Math.random();
             this.w = 100;
             this.h = 20;
-            this.drawRect(this.y)
+            this.speed=Math.floor(1+2*Math.random());
+            this.drawCloud()
         }
 
         init() {
-            this.y = 900;
-            this.drawRect(this.y);
+            this.y = 800*Math.random();
+            this.drawCloud();
         }
 
-        drawRect() {
-            this.y = this.y - 2;
+        drawCloud() {
+            this.y = this.y - this.speed;
             ctx.save();
             ctx.fillStyle="#cccccc";
             ctx.fillRect(this.x, this.y, this.h, this.w);
-            ctx.restore();
             if (this.y < -100) {
+                this.speed=Math.ceil(5*Math.random());
+                this.x = 250* (1 + Math.random() * Math.random());
                 this.y = Math.floor(800 * (1 + Math.random() * Math.random()* Math.random()));
                 console.log(this.y);
                 ctx.fillRect(this.x, this.y, this.h, this.w);
             }
+            ctx.restore();
         }
     }
     class Game {
@@ -178,6 +185,10 @@
             this.drawText("00000","RT");
             this.dragon = new Dragon();
             this.rect = new Rect();
+            this.cloud1=new Cloud();
+            this.cloud2=new Cloud();
+            this.cloud3=new Cloud();
+            this.cloud4=new Cloud();
             canvas.onclick = function () {
                 if (this.status === "pause") {
                     this.status = "playing";
@@ -244,13 +255,14 @@
         }
 
         drawLine() {
-            ctx.moveTo(BASELINE, 0);
-            ctx.lineTo(BASELINE, 800);
+            ctx.moveTo(BASELINE+15, 0);
+            ctx.lineTo(BASELINE+15, 800);
             ctx.stroke();
         };
 
         clearRect() {
-            ctx.clearRect(BASELINE, 0, 450 - BASELINE, 800);
+            ctx.clearRect(BASELINE+15, 0, 450 - BASELINE, 800);
+            ctx.clearRect(0, 0, BASELINE+14, 800);
         };
 
         check() {
@@ -267,8 +279,12 @@
         animationFrame() {
             this.clearRect();
             this.rect.drawRect();
+            this.cloud1.drawCloud();
+            this.cloud2.drawCloud();
+            this.cloud3.drawCloud();
+            this.cloud4.drawCloud();
             this.dragon.drawDragon();
-            this.check();
+            // this.check();
             this.setScore();
             if (this.status === "pause") {
                 return;
