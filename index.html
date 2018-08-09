@@ -78,16 +78,18 @@
             this.y = 100;
             this.w = DRAGONW;
             this.h = DRAGONH;
-            this.isTop = false;
+            this.isDown = false;
             this.jumping = false;
+            this.droping = false;
             this.drawDragon()
         }
 
         init() {
             this.x = BASELINE;
             this.y = 100;
-            this.isTop = false;
+            this.isDown = false;
             this.jumping = false;
+            this.droping = false;
             this.drawDragon();
         }
 
@@ -102,9 +104,22 @@
             this.jumping = true;
         }
 
+        drop() {
+            this.droping = true;
+        }
+
         drawDragon() {
             if (this.jumping) {
-                if (!this.isTop) {
+                if(this.droping){
+                    if(this.x > BASELINE){
+                        ctx.strokeRect(this.x = this.x - 10, 100, DRAGONW, DRAGONH);
+                    }else{
+                        ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
+                        this.isDown = false;
+                        this.jumping = false;
+                        this.droping = false;
+                    }
+                }else if (!this.isDown) {
                     if (this.x < RECTH + DRAGONH + 80) {
                         if (this.x > 225) {
                             ctx.strokeRect(this.x = this.x + 1, 100, DRAGONW, DRAGONH);
@@ -117,7 +132,7 @@
                         }
                     } else {
                         ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
-                        this.isTop = true;
+                        this.isDown = true;
                     }
                 } else {
                     if (this.x > BASELINE) {
@@ -132,8 +147,9 @@
                         }
                     } else {
                         ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
-                        this.isTop = false;
+                        this.isDown = false;
                         this.jumping = false;
+                        this.droping = false;
                     }
                 }
                 ctx.beginPath();
@@ -165,7 +181,7 @@
         drawCloud() {
             this.y = this.y - this.speed;
             ctx.save();
-            ctx.fillStyle = "#cccccc";
+            ctx.fillStyle = "#eeeeee";
             ctx.fillRect(this.x, this.y, this.h, this.w);
             if (this.y < -100) {
                 this.speed = Math.ceil(5 * Math.random());
@@ -184,7 +200,7 @@
             this.lose = false;
             this.score = 0;
             this.drawLine();
-            this.drawText("点击屏幕开始游戏", "center");
+            this.drawText("点击屏幕开始游戏，跳跃途中再次点击可以快速下落", "center");
             this.drawText("00000", "RT");
             this.dragon = new Dragon();
             this.rect = new Rect();
@@ -192,12 +208,16 @@
             this.cloud2 = new Cloud();
             this.cloud3 = new Cloud();
             this.cloud4 = new Cloud();
-            canvas.onclick = function () {
+            canvas.onclick = function (e) {
                 if (this.status === "pause") {
                     this.status = "playing";
                     this.animationFrame();
                 } else {
-                    this.dragon.jump();
+                    if (!this.dragon.jumping) {
+                        this.dragon.jump();
+                    } else if(this.dragon.jumping&&!this.dragon.droping) {
+                        this.dragon.drop();
+                    }
                 }
                 if (this.lose) {
                     this.init();
@@ -236,8 +256,7 @@
             this.score = 0;
             speed = 5;
             ctx.clearRect(0, 0, 450, 800);
-            this.drawText("点击屏幕开始游戏", "center");
-            this.drawText("00000", "RT");
+            this.drawText("点击屏幕开始游戏，跳跃途中再次点击可以快速下落", "center");
             this.drawLine();
             this.rect.init();
             this.dragon.init();
@@ -245,6 +264,7 @@
             this.cloud2.drawCloud();
             this.cloud3.drawCloud();
             this.cloud4.drawCloud();
+            this.drawText("00000", "RT");
         }
 
         drawText(text, pos, fntSize = 30, color = "#000") {
@@ -286,11 +306,11 @@
 
         animationFrame() {
             this.clearRect();
-            this.rect.drawRect();
             this.cloud1.drawCloud();
             this.cloud2.drawCloud();
             this.cloud3.drawCloud();
             this.cloud4.drawCloud();
+            this.rect.drawRect();
             this.dragon.drawDragon();
             this.check();
             this.setScore();
