@@ -305,6 +305,9 @@
         }
 
         animationFrame() {
+            if (this.status === "pause") {
+                return;
+            }
             this.clearRect();
             this.cloud1.drawCloud();
             this.cloud2.drawCloud();
@@ -314,9 +317,6 @@
             this.dragon.drawDragon();
             this.check();
             this.setScore();
-            if (this.status === "pause") {
-                return;
-            }
             requestAnimationFrame(this.animationFrame.bind(this))
 
         }
