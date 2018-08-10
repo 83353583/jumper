@@ -432,6 +432,9 @@
             let xDisB = this.dragon.x - this.rect.h - this.rect.x;
             let yDisA = this.dragon.y - this.rect.y - this.rect.w;
             if (!(yDisB > 0 || xDisB > 0 || yDisA > 0)) {
+                if(this.score>window.localStorage.getItem("highScore")){
+                    this.setHighScore(this.score);
+                }
                 this.status = "pause";
                 this.lose = true;
                 loseMusic.play();
@@ -439,9 +442,6 @@
                 mask.className = "";
                 restartBtn.className = "";
                 this.drawText("游戏结束,点击屏幕重新开始", "center");
-                if(this.score>window.localStorage.getItem("highScore")){
-                    this.setHighScore(this.score);
-                }
             }
         }
 
