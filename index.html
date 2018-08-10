@@ -16,6 +16,10 @@
             user-select: none;
         }
 
+        img {
+            display: block;
+        }
+
         #container {
             width: 100%;
             height: 100vh;
@@ -30,6 +34,27 @@
             background-color: #fff;
         }
 
+        #mask {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #mask img {
+            transform: rotate(90deg);
+            width: 40px;
+            height: 40px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         /*body{*/
         /*transform: rotate(-90deg);*/
         /*}*/
@@ -39,11 +64,34 @@
 <div id="container">
     <canvas id="canvas" width="450" height="800"></canvas>
 </div>
+<div id="mask">
+    <img src="img/restart.png" alt="" id="restartBtn" class="hidden">
+    <img src="img/start.png" alt="" id="startBtn">
+</div>
+<div id="music">
+    <audio src="music/jump.wav" id="jumpMusic"></audio>
+    <audio src="music/lose.mp3" id="loseMusic"></audio>
+    <audio src="music/score.wav" id="scoreMusic"></audio>
+    <audio src="music/drop.wav" id="dropMusic"></audio>
+</div>
+<div id="pic" class="hidden">
+    <img src="img/elizabeth_go.png" alt="" id="elizabethGo">
+    <img src="img/elizabeth_jump.png" alt="" id="elizabethJump">
+</div>
 </body>
 <script>
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
-    const [BASELINE, RECTW, RECTH, DRAGONW, DRAGONH] = [80, 50, 100, 50, 50];
+    const jumpMusic = document.getElementById("jumpMusic");
+    const loseMusic = document.getElementById("loseMusic");
+    const scoreMusic = document.getElementById("scoreMusic");
+    const dropMusic = document.getElementById("dropMusic");
+    const mask = document.getElementById("mask");
+    const restartBtn = document.getElementById("restartBtn");
+    const startBtn = document.getElementById("startBtn");
+    const elizabethGo = document.getElementById("elizabethGo");
+    const elizabethJump = document.getElementById("elizabethJump");
+    const [BASELINE, RECTW, RECTH, DRAGONW, DRAGONH] = [80, 50, 100, 56, 67];
     let speed = 5;
 
     class Rect {
@@ -65,7 +113,6 @@
             ctx.fillRect(this.x, this.y, this.h, this.w);
             if (this.y < -100) {
                 this.y = Math.floor(900 * (1 + Math.random() * Math.random() * Math.random()));
-                console.log(this.y);
                 ctx.fillRect(this.x, this.y, this.h, this.w);
             }
         }
@@ -78,6 +125,8 @@
             this.y = 100;
             this.w = DRAGONW;
             this.h = DRAGONH;
+            this.step = 1;
+            this.stepLength = 5;
             this.isDown = false;
             this.jumping = false;
             this.droping = false;
@@ -95,58 +144,119 @@
 
         clearRect() {
             ctx.clearRect(BASELINE, 0, 450 - BASELINE, 800);
-            if (this.x === BASELINE) {
+            if (this.x <= BASELINE) {
                 ctx.strokeRect(BASELINE, 100, DRAGONW, DRAGONH);
             }
         };
 
         jump() {
             this.jumping = true;
+            jumpMusic.play();
         }
 
         drop() {
             this.droping = true;
+            dropMusic.play();
+        }
+
+        runAni() {
+            ctx.clearRect(BASELINE, 100, DRAGONH, DRAGONW);
+            if (this.step >= 1 && this.step < 1 + this.stepLength) {
+                ctx.drawImage(elizabethGo, 4, 6, DRAGONH, DRAGONW, BASELINE, 100, DRAGONH, DRAGONW);
+            } else if (this.step >= 1 + this.stepLength && this.step < 1 + this.stepLength * 2) {
+                ctx.drawImage(elizabethGo, 4, 69, DRAGONH, DRAGONW, BASELINE, 100, DRAGONH, DRAGONW);
+            } else if (this.step >= 1 + this.stepLength * 2 && this.step < 1 + this.stepLength * 3) {
+                ctx.drawImage(elizabethGo, 4, 136, DRAGONH, DRAGONW, BASELINE, 100, DRAGONH, DRAGONW);
+            } else if (this.step >= 1 + this.stepLength * 3 && this.step < 1 + this.stepLength * 4) {
+                ctx.drawImage(elizabethGo, 3, 204, DRAGONH, DRAGONW, BASELINE, 100, DRAGONH, DRAGONW);
+            } else if (this.step >= 1 + this.stepLength * 4 && this.step < 1 + this.stepLength * 5) {
+                ctx.drawImage(elizabethGo, 4, 267, DRAGONH, DRAGONW, BASELINE, 100, DRAGONH, DRAGONW);
+            } else if (this.step >= 1 + this.stepLength * 5 && this.step < 1 + this.stepLength * 6) {
+                ctx.drawImage(elizabethGo, 4, 334, DRAGONH, DRAGONW, BASELINE, 100, DRAGONH, DRAGONW);
+            } else {
+                ctx.drawImage(elizabethGo, 4, 6, DRAGONH, DRAGONW, BASELINE, 100, DRAGONH, DRAGONW);
+                this.step = 1;
+            }
+            this.step++;
+            // switch(this.step){
+            //     case 2:
+            //         ctx.drawImage(elizabethGo,4,3,DRAGONH, DRAGONW,BASELINE, 100, DRAGONH, DRAGONW);
+            //         this.step++;
+            //         break;
+            //     case 4:
+            //         ctx.drawImage(elizabethGo,4,69,DRAGONH, DRAGONW,BASELINE, 100, DRAGONH, DRAGONW);
+            //         this.step++;
+            //         break;
+            //     case 6:
+            //         ctx.drawImage(elizabethGo,4,136,DRAGONH, DRAGONW,BASELINE, 100, DRAGONH, DRAGONW);
+            //         this.step++;
+            //         break;
+            //     case 8:
+            //         ctx.drawImage(elizabethGo,4,204,DRAGONH, DRAGONW,BASELINE, 100, DRAGONH, DRAGONW);
+            //         this.step++;
+            //         break;
+            //     case 10:
+            //         ctx.drawImage(elizabethGo,4,267,DRAGONH, DRAGONW,BASELINE, 100, DRAGONH, DRAGONW);
+            //         this.step++;
+            //         break;
+            //     case 12:
+            //         ctx.drawImage(elizabethGo,4,334,DRAGONH, DRAGONW,BASELINE, 100, DRAGONH, DRAGONW);
+            //         this.step=1;
+            //         break;
+            // }
         }
 
         drawDragon() {
             if (this.jumping) {
-                if(this.droping){
-                    if(this.x > BASELINE){
-                        ctx.strokeRect(this.x = this.x - 15, 100, DRAGONW, DRAGONH);
-                    }else{
-                        ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
+                if (this.droping) {
+                    if (this.x > BASELINE) {
+                        ctx.drawImage(elizabethJump, 2, 5, 67, 56, this.x = this.x - 15, 100, DRAGONH, DRAGONW);
+                        // ctx.strokeRect(this.x = this.x - 15, 100, DRAGONW, DRAGONH);
+                    } else {
+                        ctx.drawImage(elizabethJump, 2, 5, 67, 56, BASELINE, 100, DRAGONH, DRAGONW);
+                        // ctx.strokeRect(BASELINE, 100, DRAGONW, DRAGONH);
                         this.isDown = false;
                         this.jumping = false;
                         this.droping = false;
                     }
-                }else if (!this.isDown) {
-                    if (this.x < RECTH + DRAGONH + 80) {
+                } else if (!this.isDown) {
+                    if (this.x < RECTH + DRAGONH + 63) {
                         if (this.x > 225) {
-                            ctx.strokeRect(this.x = this.x + 1, 100, DRAGONW, DRAGONH);
+                            ctx.drawImage(elizabethJump, 2, 66, 67, 56, this.x = this.x + 1, 100, DRAGONH, DRAGONW);
+                            // ctx.strokeRect(this.x = this.x + 1, 100, DRAGONW, DRAGONH);
                         } else if (this.x > 215) {
-                            ctx.strokeRect(this.x = this.x + 2, 100, DRAGONW, DRAGONH);
+                            ctx.drawImage(elizabethJump, 2, 66, 67, 56, this.x = this.x + 2, 100, DRAGONH, DRAGONW);
+                            // ctx.strokeRect(this.x = this.x + 2, 100, DRAGONW, DRAGONH);
                         } else if (this.x > 190) {
-                            ctx.strokeRect(this.x = this.x + 3, 100, DRAGONW, DRAGONH);
+                            ctx.drawImage(elizabethJump, 2, 66, 67, 56, this.x = this.x + 3, 100, DRAGONH, DRAGONW);
+                            // ctx.strokeRect(this.x = this.x + 3, 100, DRAGONW, DRAGONH);
                         } else {
-                            ctx.strokeRect(this.x = this.x + 6, 100, DRAGONW, DRAGONH);
+                            ctx.drawImage(elizabethJump, 2, 66, 67, 56, this.x = this.x + 6, 100, DRAGONH, DRAGONW);
+                            // ctx.strokeRect(this.x = this.x + 6, 100, DRAGONW, DRAGONH);
                         }
                     } else {
-                        ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
+                        ctx.drawImage(elizabethJump, 2, 66, 67, 56, this.x, 100, DRAGONH, DRAGONW);
+                        // ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
                         this.isDown = true;
                     }
                 } else {
                     if (this.x > BASELINE) {
                         if (this.x > 225) {
-                            ctx.strokeRect(this.x = this.x - 1, 100, DRAGONW, DRAGONH);
+                            ctx.drawImage(elizabethJump, 2, 0, 67, 56, this.x = this.x - 1, 100, DRAGONH, DRAGONW);
+                            // ctx.strokeRect(this.x = this.x - 1, 100, DRAGONW, DRAGONH);
                         } else if (this.x > 215) {
-                            ctx.strokeRect(this.x = this.x - 2, 100, DRAGONW, DRAGONH);
+                            ctx.drawImage(elizabethJump, 2, 0, 67, 56, this.x = this.x - 2, 100, DRAGONH, DRAGONW);
+                            // ctx.strokeRect(this.x = this.x - 2, 100, DRAGONW, DRAGONH);
                         } else if (this.x > 190) {
-                            ctx.strokeRect(this.x = this.x - 3, 100, DRAGONW, DRAGONH);
+                            ctx.drawImage(elizabethJump, 2, 0, 67, 56, this.x = this.x - 3, 100, DRAGONH, DRAGONW);
+                            // ctx.strokeRect(this.x = this.x - 3, 100, DRAGONW, DRAGONH);
                         } else {
-                            ctx.strokeRect(this.x = this.x - 6, 100, DRAGONW, DRAGONH);
+                            ctx.drawImage(elizabethJump, 2, 0, 67, 56, this.x = this.x - 6, 100, DRAGONH, DRAGONW);
+                            // ctx.strokeRect(this.x = this.x - 6, 100, DRAGONW, DRAGONH);
                         }
                     } else {
-                        ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
+                        ctx.drawImage(elizabethJump, 2, 0, 67, 56, BASELINE, 100, DRAGONH, DRAGONW);
+                        // ctx.strokeRect(BASELINE, 100, DRAGONW, DRAGONH);
                         this.isDown = false;
                         this.jumping = false;
                         this.droping = false;
@@ -154,12 +264,11 @@
                 }
                 ctx.beginPath();
                 ctx.moveTo(BASELINE + 15, 100);
-                ctx.lineTo(BASELINE + 15, 150);
+                ctx.lineTo(BASELINE + 15, 100 + DRAGONW);
                 ctx.stroke();
             } else {
-                ctx.strokeRect(this.x, 100, DRAGONW, DRAGONH);
+                this.runAni();
             }
-            ctx.clearRect(this.x, 100, DRAGONW - 1, DRAGONH - 1);
         }
     }
 
@@ -187,7 +296,6 @@
                 this.speed = Math.ceil(5 * Math.random());
                 this.x = 250 * (1 + Math.random() * Math.random());
                 this.y = Math.floor(800 * (1 + Math.random() * Math.random() * Math.random()));
-                console.log(this.y);
                 ctx.fillRect(this.x, this.y, this.h, this.w);
             }
             ctx.restore();
@@ -199,28 +307,35 @@
             this.status = "pause";
             this.lose = false;
             this.score = 0;
+            this.highScore = 0;
             this.drawLine();
-            this.drawText("点击屏幕开始游戏，跳跃途中再次点击可以快速下落", "center");
-            this.drawText("00000", "RT");
             this.dragon = new Dragon();
             this.rect = new Rect();
             this.cloud1 = new Cloud();
             this.cloud2 = new Cloud();
             this.cloud3 = new Cloud();
             this.cloud4 = new Cloud();
-            canvas.onclick = function (e) {
-                if (this.status === "pause") {
-                    this.status = "playing";
-                    this.animationFrame();
+            this.getHighScore();
+            this.drawText("00000", "RT");
+            this.drawText("点击开始游戏，跳跃途中再次点击可以快速下落", "center");
+            window.onclick = function (e) {
+                if (this.lose) {
+                    if (e.target.id === "restartBtn") {
+                        mask.className = "hidden";
+                        this.init();
+                    }
+                } else if (this.status === "pause") {
+                    if (e.target.id === "startBtn") {
+                        mask.className = "hidden";
+                        this.status = "playing";
+                        this.animationFrame();
+                    }
                 } else {
                     if (!this.dragon.jumping) {
                         this.dragon.jump();
-                    } else if(this.dragon.jumping&&!this.dragon.droping) {
+                    } else if (this.dragon.jumping && !this.dragon.droping) {
                         this.dragon.drop();
                     }
-                }
-                if (this.lose) {
-                    this.init();
                 }
             }.bind(this);
         }
@@ -230,33 +345,45 @@
             if (this.score % 1000 === 0) {
                 speed += 1;
             }
-            let showScore = Math.ceil(this.score / 10);
-            if (showScore < 10000) {
-                if (showScore >= 1000) {
-                    showScore = "0" + showScore;
-                } else if (showScore >= 100) {
-                    showScore = "00" + showScore;
-                } else if (showScore >= 10) {
-                    showScore = "000" + showScore;
-                } else {
-                    showScore = "0000" + showScore;
-                }
-            }
+            let showScore = this.formatScore(this.score);
             if (Math.ceil(this.score / 10) % 100 === 0) {
-                this.drawText(showScore, "RT", 30, "red")
+                this.drawText(showScore, "RT", 30, "red");
+                scoreMusic.play();
             } else {
                 this.drawText(showScore, "RT", 30)
             }
 
         }
-
+        formatScore(score){
+            score=Math.ceil(score / 10);
+            if (score < 10000) {
+                if (score >= 1000) {
+                    score = "0" + score;
+                } else if (score >= 100) {
+                    score = "00" + score;
+                } else if (score >= 10) {
+                    score = "000" + score;
+                } else {
+                    score = "0000" + score;
+                }
+            }
+            return score;
+        }
+        getHighScore() {
+            if (window.localStorage.getItem("highScore")) {
+                this.highScore = window.localStorage.getItem("highScore");
+            }
+            this.drawText("HI "+this.formatScore(this.highScore), "MT");
+        }
+        setHighScore(highScore){
+            window.localStorage.setItem("highScore",highScore);
+        }
         init() {
             this.status = "pause";
             this.lose = false;
             this.score = 0;
             speed = 5;
             ctx.clearRect(0, 0, 450, 800);
-            this.drawText("点击屏幕开始游戏，跳跃途中再次点击可以快速下落", "center");
             this.drawLine();
             this.rect.init();
             this.dragon.init();
@@ -265,6 +392,11 @@
             this.cloud3.drawCloud();
             this.cloud4.drawCloud();
             this.drawText("00000", "RT");
+            this.getHighScore();
+            this.drawText("点击屏幕开始游戏，跳跃途中再次点击可以快速下落", "center");
+            startBtn.className = "";
+            mask.className = "";
+            restartBtn.className = "hidden";
         }
 
         drawText(text, pos, fntSize = 30, color = "#000") {
@@ -272,9 +404,11 @@
             ctx.fillStyle = color;
             ctx.font = fntSize + "px Arial";
             if (pos === "center") {
-                ctx.translate(225, 400 - text.length * fntSize / 2);
+                ctx.translate(295, 400 - text.length * fntSize / 2);
             } else if (pos === "RT") {
                 ctx.translate(380, 680);
+            } else if (pos === "MT") {
+                ctx.translate(380, 530);
             }
             ctx.rotate(90 * Math.PI / 180);
             ctx.fillText(text, 0, 0);
@@ -297,10 +431,17 @@
             let yDisB = this.rect.y - this.dragon.y - this.dragon.w;
             let xDisB = this.dragon.x - this.rect.h - this.rect.x;
             let yDisA = this.dragon.y - this.rect.y - this.rect.w;
-            if (!(yDisB >= 0 || xDisB >= 0 || yDisA >= 0)) {
+            if (!(yDisB > 0 || xDisB > 0 || yDisA > 0)) {
                 this.status = "pause";
                 this.lose = true;
+                loseMusic.play();
+                startBtn.className = "hidden";
+                mask.className = "";
+                restartBtn.className = "";
                 this.drawText("游戏结束,点击屏幕重新开始", "center");
+                if(this.score>window.localStorage.getItem("highScore")){
+                    this.setHighScore(this.score);
+                }
             }
         }
 
@@ -317,6 +458,7 @@
             this.dragon.drawDragon();
             this.check();
             this.setScore();
+            this.getHighScore();
             requestAnimationFrame(this.animationFrame.bind(this))
 
         }
